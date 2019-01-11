@@ -1,3 +1,5 @@
+const { PerformanceObserver, performance } = require('perf_hooks')
+
 module.exports = class Iterator {
   constructor (tasks, options, callback) {
     this.options = Object.assign({
@@ -14,13 +16,16 @@ module.exports = class Iterator {
   }
 
   _callback (index) {
-    if (this.tasks[index].done) {
+    let task = this.tasks[index]
+
+    if (task.done) {
       console.error('callback has already been called!')
     } else {
+      task.endTime = performance.now()
       this.activeCount--
     }
 
-    this.tasks[index].done = true
+    task.done = true
 
     if (this.pending) {
       global.setTimeout(this._run.bind(this), 0)
@@ -29,12 +34,13 @@ module.exports = class Iterator {
   }
 
   _run () {
-    console.log('run')
     this.pending = false
 
     while (this.pointer < this.tasks.length) {
       let task = this.tasks[this.pointer]
+      task.startTime = performance.now()
       task(this._callback.bind(this, this.pointer))
+      task.initDoneTime = performance.now()
       this.pointer++
       this.activeCount++
 
