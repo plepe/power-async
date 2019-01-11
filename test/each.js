@@ -68,4 +68,48 @@ describe('each', function () {
 
     console.log(stat)
   })
+
+  it ('array - sync timeLimit=1', function (done) {
+    let stat = powerAsync.each(
+      [ 'a', 'b', 'c' ],
+      {
+        timeLimit: 0.01
+      },
+      (value, index, callback) => {
+        let s = 0
+        for (let i = 0; i < 1000; i++) {
+          s *= i
+        }
+
+        callback()
+      },
+      (err) => {
+        done()
+      }
+    )
+
+    console.log(stat)
+  })
+
+  it ('array - async timeLimit=1', function (done) {
+    let stat = powerAsync.each(
+      [ 'a', 'b', 'c' ],
+      {
+        timeLimit: 0.01
+      },
+      (value, index, callback) => {
+        let s = 0
+        for (let i = 0; i < 1000; i++) {
+          s *= i
+        }
+
+        global.setTimeout(callback, 0)
+      },
+      (err) => {
+        done()
+      }
+    )
+
+    console.log(stat)
+  })
 })
